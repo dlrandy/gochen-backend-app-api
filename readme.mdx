@@ -1,0 +1,160 @@
+```shell
+brew update
+brew install mongodb
+mkdir -p /data/db
+sudo chown -R `id -un` /data/db
+mongod
+
+```
+
+
+https://medium.com/@tomanagle/strongly-typed-models-with-mongoose-and-typescript-7bc2f7197722?
+
+https://treehouse.github.io/installation-guides/mac/mongo-mac.html
+
+
+
+选择一个开发工具或者框架的决定因素是什么？
+> 决定因素肯定是使用这些工具或者框架能做些什么。Koa适合做web app或者APIs，也适合做一些services
+
+为什么选择Koa？
+koa提供了轻量的高度可配置的基础，使得开发者能够快速的构建出js web app:
+1. 可以使用js的现代标准，现代的语法带有更多的方便性
+2. 非常轻量，学习成本低
+3. 没有自带任何的中间件，可以自由配置
+4. 写自定义中间件更容易，koa的中间件是在请求和响应之间的函数。可以处理请求和响应
+	中间件定义里最重要的是要调用next中间件。koa的中间件级联的模式也是koa受推崇的原因之一。它使得实现和理解中间流更容易。
+5. 社区支持也不错
+
+## Koa VS Express
+1. Express补充了Node，Koa试着修复和替换node里的事物
+2. Koa完全剔除了callback
+3. Express增加了Node的request和response额外的参数和方法，koa提供了自己的ctx.request和ctx.response
+4. koa 是nodejs Http模块的抽象，Express是nodejs的应用框架
+5. Koa不带插件，不提供常用功能；Express提供了模板引擎，路由，URL解析等
+6. koa基于Promise的控制流
+7. koa的级联中间件模式流，允许中间每个request采取两次action；而express只允许执行一次
+
+KOA Middleware VS Express Middleware
+1.  都是从上向下执行，中间件链，koa是基于Promise，express是基于回调
+2.  对于忽略了next的情况，express的request不会结束，除非调用next或者发送
+	response；koa会返回请求。
+3.  一旦调用了next koa必须要await next，一旦一个中间件的Promise chain结束，
+	koa就会结束request。
+4. 如果使用Promise.then()而不是async-await的时候，middleware应该返回Promise
+	。当返回的Promise resolve的时候，koa才会恢复上一个middleware
+5. express的中间件只能在调用next之前做一些有用的事情，一旦调用了next，request
+	便永远不会再次执行中间件。当然可以监视response的header有没有变化来做一些操作。
+6. express的错误处理必须在链的末端才能生效；koa一般放在最前面。express 的错误处理是error开头，同时处理异步或者回调的错误较冗余；next不传参数的时候，走下一个中间件，传参数的时候，走错误中间件，需要考虑同步异步的错误；koa的错误中间件也是基于
+Promise的。koa总是将next()包含在Promise里返给我们，不需要担心同步异步的错误
+> 使用koa的时候，注意中间件不是async-await的情况。
+
+#async-await
+## async-await in Loop
+async-await 
+- 可用于
+	1. for..
+	2. for..of
+	3. while
+- 不可用于
+	1. 带有callback的loop
+
+> - map里是使用await总是返回Promise 
+- 不要在filter和reduce里使用await。await一系列的Promises，总是要使用map，然后在
+ 相应的进行filter或者reduce
+- forEach 不能意识到Promise
+- map 总是返回Promise，因为async函数总是返回Promise
+-  filter并不能过滤async函数，因为总是返回Promise，真想过滤可以使用map，拿到所有结果之后在filter
+- reduce有两点需要注意，一是async返回Promise，二是可以先await重计算的任务在await累加的Promise。
+```javascript
+function long(m) { 
+    return new Promise((resolve, reject) => { 
+        setTimeout(() => resolve(m + 200), 100);
+    });
+}
+function pp() { 
+    console.log('dddd');
+    [1, 2, 3, 4, 5].forEach(async n => {
+        const a = await long(n);
+        console.log(a);
+    });
+    console.log('eeeee');
+}
+
+pp();
+//dddd
+//VM8262:12 eeeee
+//VM8262:10 201
+//VM8262:10 202
+//VM8262:10 203
+//VM8262:10 204
+//VM8262:10 205
+
+
+
+function long(m) { 
+    return new Promise((resolve, reject) => { 
+        setTimeout(() => resolve(m + 200), 100);
+    });
+}
+function pp() { 
+    console.log('dddd');
+    const b = [1, 2, 3, 4, 5].filter(async n => {
+        const a = await long(n);
+        console.log(a);
+        return n < 4;
+    });
+    console.log(b)
+    console.log('eeeee');
+}
+
+pp()
+dddd
+VM9296:13 (5) [1, 2, 3, 4, 5]
+VM9296:14 eeeee
+VM9296:10 201
+VM9296:10 202
+VM9296:10 203
+VM9296:10 204
+VM9296:10 205
+
+function long(m) { 
+    return new Promise<number>((resolve, reject) => { 
+        setTimeout(() => resolve(m + 200), 100);
+    });
+}
+function pp() { 
+    console.log('dddd');
+    const b = [1, 2, 3, 4, 5].reduce(
+        async (s: Promise<number>, n: number, index: number) => {
+            const a = await long(n);
+            const c = await s;
+        console.log(a + c);
+        return a+c;
+    }, Promise.resolve(0));
+    console.log(b)
+    console.log('eeeee');
+}
+
+pp()
+
+
+```
+async代表该函数返回一个Promise，await等其后面表达式的值，如果表达式是普通的值，那么像正常函数一样执行，是Promise就会阻塞后面的代码，直到Promise解析完成。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
