@@ -1,13 +1,14 @@
+import { RouterContext } from '@koa/router';
 import Post, { IPost } from '@models/post'
 import postService from '@services/postService';
 import Koa from 'koa';
-import { RouterContext } from 'koa-router';
 
 export default  {
   async index(ctx: Koa.Context & RouterContext) {
     const posts = await postService.getAllPosts();
     ctx.state.posts = posts;
     ctx.state.title = 'Home';
+    ctx.body='rerer'
     await ctx.render('index');
   },
 

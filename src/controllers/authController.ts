@@ -1,8 +1,8 @@
+import { RouterContext } from '@koa/router';
 import authService from '@services/authService';
 import userService from '@services/userService';
 import {compareEncrytedCode, encryptCode} from '@utils/cryptTools'; 
 import Koa from 'koa';
-import { RouterContext } from 'koa-router';
 import { IUserModel } from '../models/User';
 
 export default {

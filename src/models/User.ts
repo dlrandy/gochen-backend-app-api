@@ -1,6 +1,6 @@
 // tslint:disable: object-literal-sort-keys
 import { model, Document, Model, Schema } from "mongoose";
-
+import uniqueValidator from 'mongoose-unique-validator';
 export interface IUser {
   email: string;
   password: string;
@@ -16,13 +16,21 @@ export interface IUserModel extends IUser, Document {
 }
 
 const schema = new Schema({
-  firstName: {
+  fullName: {
     type: String,
     required: true
   },
   lastName: String,
   avatar: String,
-  email: String,
+  password: {
+    type: String,
+    required: true,
+  },
+  email: {
+    unique: true,
+    type: String,
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -32,6 +40,6 @@ const schema = new Schema({
     default: Date.now
   }
 });
-
+schema.plugin(uniqueValidator);
 const User: Model<IUserModel> = model<IUserModel>("User", schema);
 export default User;
