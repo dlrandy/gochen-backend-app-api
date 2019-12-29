@@ -13,7 +13,7 @@
       "*": ["types/*"],
       "@config/*": ["./config/*"],
       "@controllers/*": ["./controllers/*"],
-      "@middleware/*": ["../middleware/*"],
+      "@middleware/*": ["./middleware/*"],
       "@models/*": ["./models/*"],
       "@router/*": ["./router/*"],
       "@services/*": ["./services/*"],

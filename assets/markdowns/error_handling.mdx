@@ -1,0 +1,40 @@
+Koa 使用异步函数处理error，比其他基于callback的容易。
+**可以考虑一下同步和异步的情况做一下比较？**
+
+为什么说koa默认能够处理所有的同步或者异步的错误？
+1. koa的级联中间件栈
+2. 错误处理加在栈的最顶端，顶端的中间件总是最后结束。
+基于上面的两点koa也能够处理所有未捕获的错误。
+
+koa的默认处理错误行为是在app.silent 不为true的情况，将错误输出到stderr。如果
+errorde expose属性设置为true，error.message 会作为response返回。
+
+Express将错误处理中间件放在中间件栈的最底部,同步的error路由句柄和中间件能够自动处理，但是
+异步的error，需要手动传入到next函数里；koa则是放在顶端，try catch就能捕获所有的错误。
+
+> 推荐在app里发射error，益于集中的处理错误报告和日志。koa提供了throw http error的helper
+方法： ctx.throw([httpCode], [message], [properties])。
+错误默认的status是500，expose是false。
+5XX的错误一般不暴露给用户。
+throw的error，更易于做一些自定义的错误处理。
+也可以基于不同的用户处理不同类型的错误。
+```javasctipt
+app.use(async ctx => {
+  ctx.throw(401, 'Access denied to the resource', {user})
+} );
+
+app.use(async (ctx, next) => {
+  try{
+    await next();
+  }catch(err){
+    ctx.body = err.message;
+    if(err.status === 401) {
+      const {email} = err.user;
+      ctx.body = `user with email ${email} does not have access to resource`;
+    }
+  }
+})
+
+```
+
+

@@ -1,9 +1,14 @@
 import postController from '@controllers/postController'
-import KoaRouter from 'koa-router';
+import authenticated from '@middleware/authenticated';
+
+import KoaRouter from '@koa/router';
 const posts = new KoaRouter();
+const baseUrl = '/posts'
 posts
-  .post('/', postController.index)
-  .get('/create', postController.create)
-  .put('/:id', postController.update)
-  .get('/:id/edit', postController.edit);
+  // .use(authenticated())
+  .get(`${baseUrl}/`, postController.index)
+  .post(`${baseUrl}/`, postController.store)
+  .get(`${baseUrl}/create`, postController.create)
+  .put(`${baseUrl}/:id`, postController.update)
+  .get(`${baseUrl}/:id/edit`, postController.edit);
 export default posts;

@@ -1,6 +1,7 @@
-<%- include( 'partials/header.ejs' ) -%>
+<%- include( 'partials/header.ejs' ) -%>  
 <div class="columns">
-  <% locals.posts.forEach(post => { %>
+  <% posts.forEach(post => { %>
+
   <div class="column is-one-third">
     <div class="card">
       <div class="card-content">
@@ -8,7 +9,7 @@
           <%= post.title %>
         </p>
         <p class="subtitle">
-          <small>by ddd</small>
+          <small>by <%= post.author.fullName %></small>
         </p>
       </div>
       <footer class="card-footer">
@@ -20,6 +21,7 @@
       </footer>
     </div>
   </div>
+
   <% }); %>
 </div>
-<%- include( 'partials/footer.ejs' ) -%>
+<%- include( 'partials/footer.ejs' ) -%>  

@@ -1,43 +1,29 @@
 import http from "http";
 import https from "https";
 import Koa from "koa";
-import bodyParser from 'koa-body';
-import session from 'koa-session';
-import views from "koa-views";
-import path from 'path';
 // tslint:disable-next-line: ordered-imports
-import 'module-alias/register';
+import "module-alias/register";
 // tslint:disable-next-line: ordered-imports
-import router from '@router/index';
-// import methodOverride from '@middleware/methodOverride';
+import useMiddlewares from "@middleware/index";
 
-import initDb from '@config/db'
-
-initDb();
+import initDb from "@config/db";
 
 const app = new Koa();
-app.keys = ['gochen.cc yeah! @.@ 000'];
 
-
-app.use(views(path.join(__dirname, '..','views'), {
-  extension: 'ejs'
-}));
-
-app.use(bodyParser());
-app.use(session(app));
-
-// 注册router定义的路由
-app.use(router.routes())
-  // 独立的中间件响应有Allow头部的options请求
-  .use(router.allowedMethods());
-
-app.use(async (ctx, next) => {
-  const currentDateTime = new Date().toLocaleDateString();
-  console.log(
-    `${ctx.method} request made top oo${ctx.url} at ${currentDateTime}`
-  );
-  await next();
+app.on("error", (error: Error) => {
+  // TODO
+  // logging error
+  console.error(error);
 });
+
+initDb(app);
+
+app.keys = ["gochen.cc yeah! @.@ 000"];
+
+useMiddlewares(app);
+
+const port = process.env.PORT || 3000;
+// app.listen(port, () => console.log(`Server running on http://localhost:${port}`));
 
 http.createServer(app.callback()).listen(3000);
 https.createServer(app.callback()).listen(3001);
