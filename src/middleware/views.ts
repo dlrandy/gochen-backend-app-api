@@ -1,5 +1,5 @@
 import Koa from "koa";
-import views from "koa-views";
+import render from "koa-ejs";
 import path from 'path';
 /**
  * 确保View中间件在router中间件之前注册。这样确保在router的定义里可以
@@ -8,7 +8,12 @@ import path from 'path';
  */
 
 export default (app: Koa) => {
-  app.use(views(path.join(__dirname, '..','..','views'), {
-    extension: 'ejs'
-  }));
+  render(app,{
+    cache:false,
+    debug:false,
+    layout: '_layout',
+    root: path.join(__dirname, '..','..', 'views'),
+    viewExt: 'ejs',
+})
+
 };
